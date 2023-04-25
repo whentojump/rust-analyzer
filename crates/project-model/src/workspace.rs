@@ -347,10 +347,11 @@ impl ProjectWorkspace {
             (None, None) => Err(None),
         };
         if let Ok(sysroot) = &sysroot {
+            // `tracing` crate is used for logging
             tracing::info!(
-                src_root = %sysroot.src_root().display(),
-                root = %sysroot.root().display(),
-                "load_inline(): Using sysroot"
+                src_root = %sysroot.src_root().display(), // k = v
+                root = %sysroot.root().display(),         // k = v
+                "load_inline(): Using sysroot"            // prefix
             );
         }
 
