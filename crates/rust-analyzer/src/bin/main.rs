@@ -21,6 +21,7 @@ static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
+// NOTE NOTE entry point (1)
 fn main() {
     if std::env::var("RA_RUSTC_WRAPPER").is_ok() {
         let mut args = std::env::args_os();
@@ -36,7 +37,13 @@ fn main() {
         process::exit(code);
     }
 
+    // NOTE
+    // flags::RustAnalyzer::from_env_or_exit
+    // <src>::  <struct>  ::    <impl>
+    //
+    // under the hood is `xflags` crate
     let flags = flags::RustAnalyzer::from_env_or_exit();
+    // NOTE NOTE entry point (2)
     if let Err(err) = try_main(flags) {
         tracing::error!("Unexpected error: {}", err);
         eprintln!("{err}");
@@ -44,6 +51,7 @@ fn main() {
     }
 }
 
+// NOTE NOTE entry point (2)
 fn try_main(flags: flags::RustAnalyzer) -> Result<()> {
     #[cfg(debug_assertions)]
     if flags.wait_dbg || env::var("RA_WAIT_DBG").is_ok() {
@@ -61,8 +69,10 @@ fn try_main(flags: flags::RustAnalyzer) -> Result<()> {
         log_file = Some(Path::new(env_log_file));
     }
 
-    setup_logging(log_file)?;
+    setup_logging(log_file)?; // NOTE tracing only works after this line
     let verbosity = flags.verbosity();
+
+    tracing::warn!(flags = ?flags);
 
     match flags.subcommand {
         flags::RustAnalyzerCmd::LspServer(cmd) => {
@@ -74,6 +84,7 @@ fn try_main(flags: flags::RustAnalyzer) -> Result<()> {
                 println!("rust-analyzer {}", rust_analyzer::version());
                 return Ok(());
             }
+            // NOTE NOTE entry point (3)
             with_extra_thread("LspServer", run_server)?;
         }
         flags::RustAnalyzerCmd::ProcMacro(flags::ProcMacro) => {
@@ -119,8 +130,12 @@ fn setup_logging(log_file: Option<&Path>) -> Result<()> {
         None => None,
     };
     let filter = env::var("RA_LOG").ok();
+
+    // NOTE the actual RA_LOG parsing is handled by `tracing` crate
+
     // deliberately enable all `error` logs if the user has not set RA_LOG, as there is usually useful
     // information in there for debugging
+    // NOTE tracing only works after this line
     logger::Logger::new(log_file, filter.as_deref().or(Some("error"))).install()?;
 
     profile::init();
@@ -145,6 +160,8 @@ fn with_extra_thread(
     }
 }
 
+// NOTE NOTE entry point (3)
+// TODO
 fn run_server() -> Result<()> {
     tracing::info!("server version {} will start", rust_analyzer::version());
 
