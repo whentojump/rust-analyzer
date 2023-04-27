@@ -606,6 +606,7 @@ impl HirDisplay for Ty {
                 t.hir_fmt(f)?;
                 write!(f, "]")?;
             }
+            // NOTE the hint message
             TyKind::Array(t, c) => {
                 write!(f, "[")?;
                 t.hir_fmt(f)?;

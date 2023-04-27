@@ -484,7 +484,7 @@ impl std::fmt::Display for ConstRef {
             ConstRef::UInt(num) => num.fmt(f),
             ConstRef::Bool(flag) => flag.fmt(f),
             ConstRef::Char(c) => write!(f, "'{c}'"),
-            ConstRef::Unknown => f.write_char('_'),
+            ConstRef::Unknown => f.write_char('_'), // NOTE hint message
         }
     }
 }
