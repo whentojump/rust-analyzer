@@ -136,7 +136,7 @@ fn install_server(sh: &Shell, opts: ServerOpt) -> Result<()> {
         Malloc::Jemalloc => &["--features", "jemalloc"],
     };
 
-    let cmd = cmd!(sh, "cargo install --path crates/rust-analyzer --locked --force --features force-always-assert {features...}");
+    let cmd = cmd!(sh, "cargo --offline install --path crates/rust-analyzer --locked --force --features force-always-assert {features...}");
     cmd.run()?;
     Ok(())
 }
