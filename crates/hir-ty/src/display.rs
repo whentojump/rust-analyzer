@@ -1501,9 +1501,9 @@ impl HirDisplay for TypeRef {
                 inner.hir_fmt(f)?;
             }
             TypeRef::Array(inner, len) => {
-                write!(f, "[")?;
+                write!(f, "<<<[")?;
                 inner.hir_fmt(f)?;
-                write!(f, "; {len}]")?;
+                write!(f, "; {len}]>>>")?;
             }
             TypeRef::Slice(inner) => {
                 write!(f, "[")?;

@@ -134,9 +134,9 @@ pub(crate) fn print_type_ref(type_ref: &TypeRef, buf: &mut dyn Write) -> fmt::Re
             print_type_ref(pointee, buf)?;
         }
         TypeRef::Array(elem, len) => {
-            write!(buf, "[")?;
+            write!(buf, "[[[[[")?;
             print_type_ref(elem, buf)?;
-            write!(buf, "; {len}]")?;
+            write!(buf, "; {len}]]]]]")?;
         }
         TypeRef::Slice(elem) => {
             write!(buf, "[")?;
