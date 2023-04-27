@@ -498,6 +498,7 @@ dependencies = [
  "smallvec",
  "stdx",
  "syntax",
+ "tracing",
  "tt",
 ]
 
