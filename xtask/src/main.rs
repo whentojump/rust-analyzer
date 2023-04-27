@@ -28,6 +28,24 @@ use xshell::{cmd, Shell};
 fn main() -> anyhow::Result<()> {
     println!("[WTJ-NOTE] `xtask` subcommand entry point");
 
+    // NOTE
+    //      flags::Xtask
+    //      <src>::<struct> -- member fields are args/opts
+    //                         one field `subcommand` is of type `XtaskCmd`
+    //                         from_env_or_exit() is one impl: command line parsing based on `xflags`
+    //
+    //      flags::XtaskCmd::Install (of type `Install`)
+    //      <src>::<enum>
+    //
+    //      flags::Install
+    //      <src>::<struct> -- member fields are args/opts
+    //                         impl's include run(), client(), server()
+    //
+    //      (applcation of `xflags` in another crate)
+    //
+    //      flags::RustAnalyzer
+    //      flags::RustAnalyzerCmd::LspServer (of type `LspServer`)
+    //      flags::LspServer
     let flags = flags::Xtask::from_env_or_exit();
 
     let sh = &Shell::new()?;
