@@ -396,7 +396,7 @@ impl ConstRefOrPath {
     pub(crate) fn from_expr_opt(expr: Option<ast::Expr>) -> Self {
         match expr {
             Some(x) => Self::from_expr(x),
-            None => { tracing::warn!("from_expr_opt()"); Self::Scalar(ConstRef::Unknown) },
+            None => Self::Scalar(ConstRef::Unknown),
         }
     }
 
@@ -407,7 +407,7 @@ impl ConstRefOrPath {
             ast::Expr::PathExpr(p) => {
                 match p.path().and_then(|x| x.segment()).and_then(|x| x.name_ref()) {
                     Some(x) => Self::Path(x.as_name()),
-                    None => { tracing::warn!("from_expr()"); Self::Scalar(ConstRef::Unknown) },
+                    None => Self::Scalar(ConstRef::Unknown),
                 }
             }
             ast::Expr::PrefixExpr(prefix_expr) => match prefix_expr.op_kind() {
@@ -425,7 +425,6 @@ impl ConstRefOrPath {
             },
             ast::Expr::Literal(literal) => Self::Scalar(match literal.kind() {
                 ast::LiteralKind::IntNumber(num) => {
-                    tracing::warn!("from_expr()");
                     num.value().map(ConstRef::UInt).unwrap_or(ConstRef::Unknown)
                 }
                 ast::LiteralKind::Char(c) => {
@@ -434,7 +433,7 @@ impl ConstRefOrPath {
                 ast::LiteralKind::Bool(f) => ConstRef::Bool(f),
                 _ => ConstRef::Unknown,
             }),
-            _ => { tracing::warn!("from_expr()"); Self::Scalar(ConstRef::Unknown) },
+            _ => Self::Scalar(ConstRef::Unknown),
         }
     }
 }
@@ -473,7 +472,7 @@ impl From<Literal> for ConstRef {
             Literal::Bool(flag) => Self::Bool(flag),
             Literal::Int(num, _) => Self::Int(num),
             Literal::Uint(num, _) => Self::UInt(num),
-            _ => { tracing::warn!("from()"); Self::Unknown },
+            _ => Self::Unknown,
         }
     }
 }

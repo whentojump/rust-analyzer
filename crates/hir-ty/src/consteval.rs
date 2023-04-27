@@ -138,7 +138,7 @@ pub fn intern_const_ref(db: &dyn HirDatabase, value: &ConstRef, ty: Ty, krate: C
         ConstRef::Char(c) => {
             ConstScalar::Bytes((*c as u32).to_le_bytes().to_vec(), MemoryMap::default())
         }
-        ConstRef::Unknown => { tracing::warn!("intern_const_ref()"); ConstScalar::Unknown },
+        ConstRef::Unknown => ConstScalar::Unknown,
     };
     intern_const_scalar(bytes, ty)
 }
