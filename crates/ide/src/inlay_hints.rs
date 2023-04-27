@@ -394,6 +394,7 @@ fn ty_to_text_edit(
 // * compiler inserted reborrows
 //
 // image::https://user-images.githubusercontent.com/48062697/113020660-b5f98b80-917a-11eb-8d70-3be3fd558cdd.png[]
+// NOTE NOTE type hint (5)
 pub(crate) fn inlay_hints(
     db: &RootDatabase,
     file_id: FileId,
@@ -423,9 +424,11 @@ pub(crate) fn inlay_hints(
         };
     }
 
+    // NOTE Vec<InlayHint>
     acc
 }
 
+// NOTE NOTE type hint (6)
 fn hints(
     hints: &mut Vec<InlayHint>,
     famous_defs @ FamousDefs(sema, _): &FamousDefs<'_, '_>,
@@ -434,8 +437,20 @@ fn hints(
     node: SyntaxNode,
 ) {
     closing_brace::hints(hints, sema, config, file_id, node.clone());
+    // println!("{node:?}"); // NOTE something like lexer output? `rust-analyzer parse`?
     match_ast! {
         match node {
+            // NOTE node kinds:
+            // ast::Expr::CallExpr
+            // ast::Expr::MethodCallExpr
+            // ast::Pat::IdentPat
+            // ...
+            // NOTE inlay hint kinds:
+            // chaining::
+            // adjustment::
+            // param_name::
+            // bind_pat:: (type hint)
+            // ...
             ast::Expr(expr) => {
                 chaining::hints(hints, famous_defs, config, file_id, &expr);
                 adjustment::hints(hints, sema, config, &expr);
@@ -454,7 +469,7 @@ fn hints(
             ast::Pat(it) => {
                 binding_mode::hints(hints, sema, config, &it);
                 if let ast::Pat::IdentPat(it) = it {
-                    bind_pat::hints(hints, famous_defs, config, file_id, &it);
+                    bind_pat::hints(hints, famous_defs, config, file_id, &it); // NOTE NOTE type hint (7)
                 }
                 Some(())
             },
@@ -562,15 +577,22 @@ mod tests {
     }
 
     #[track_caller]
+    // NOTE NOTE type hint (3)
     pub(super) fn check_with_config(config: InlayHintsConfig, ra_fixture: &str) {
         let (analysis, file_id) = fixture::file(ra_fixture);
         let mut expected = extract_annotations(&analysis.file_text(file_id).unwrap());
         let inlay_hints = analysis.inlay_hints(&config, file_id, None).unwrap();
+        // NOTE ^ Vec<InlayHint>
+
+        println!("{inlay_hints:?}"); // shown in tests only
+
         let actual = inlay_hints
             .into_iter()
             .map(|it| (it.range, it.label.to_string()))
             .sorted_by_key(|(range, _)| range.start())
             .collect::<Vec<_>>();
+        // NOTE ^ somewhat formatted Vec<InlayHint>
+
         expected.sort_by_key(|(range, _)| range.start());
 
         assert_eq!(expected, actual, "\nExpected:\n{expected:#?}\n\nActual:\n{actual:#?}");

@@ -200,6 +200,8 @@ pub fn add_cursor(text: &str, offset: TextSize) -> String {
     res
 }
 
+// NOTE test annotation format
+
 /// Extracts `//^^^ some text` annotations.
 ///
 /// A run of `^^^` can be arbitrary long and points to the corresponding range

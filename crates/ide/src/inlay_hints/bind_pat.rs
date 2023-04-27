@@ -17,6 +17,7 @@ use crate::{
     InlayHint, InlayHintsConfig, InlayKind,
 };
 
+// NOTE NOTE type hint (7)
 pub(super) fn hints(
     acc: &mut Vec<InlayHint>,
     famous_defs @ FamousDefs(sema, _): &FamousDefs<'_, '_>,
@@ -30,13 +31,17 @@ pub(super) fn hints(
 
     let descended = sema.descend_node_into_attributes(pat.clone()).pop();
     let desc_pat = descended.as_ref().unwrap_or(pat);
-    let ty = sema.type_of_pat(&desc_pat.clone().into())?.original;
+    let ty = sema.type_of_pat(&desc_pat.clone().into())?.original; // NOTE NOTE TODO type hint (8)
+
+    tracing::warn!(ty = ?ty);
 
     if should_not_display_type_hint(sema, config, pat, &ty) {
         return None;
     }
 
     let label = label_of_ty(famous_defs, config, ty.clone())?;
+
+    tracing::warn!(label = ?label);
 
     if config.hide_named_constructor_hints
         && is_named_constructor(sema, pat, &label.to_string()).is_some()
@@ -60,6 +65,12 @@ pub(super) fn hints(
     } else {
         None
     };
+
+    // single `InlyHint`
+    // * range:     e.g. 20..22
+    // * kind:      Type
+    // * label:     i32
+    // * text_edit: what the editor should do to display the hint
 
     acc.push(InlayHint {
         range: match pat.name() {
@@ -207,9 +218,12 @@ mod tests {
     };
 
     #[track_caller]
+    // NOTE NOTE type hint (2)
     fn check_types(ra_fixture: &str) {
         check_with_config(InlayHintsConfig { type_hints: true, ..DISABLED_CONFIG }, ra_fixture);
     }
+
+    // NOTE NOTE type hint (1)
 
     #[test]
     fn type_hints_only() {

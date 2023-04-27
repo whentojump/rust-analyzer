@@ -373,6 +373,7 @@ impl Analysis {
         self.with_db(|db| file_structure::file_structure(&db.parse(file_id).tree()))
     }
 
+    // NOTE NOTE type hint (4)
     /// Returns a list of the places in the file where type hints can be displayed.
     pub fn inlay_hints(
         &self,
