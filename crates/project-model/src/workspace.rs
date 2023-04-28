@@ -329,6 +329,9 @@ impl ProjectWorkspace {
                     config.target.as_deref(),
                     &config.extra_env,
                 );
+
+                tracing::warn!(data_layout = ? data_layout, "[Cargo data layout]");
+
                 if let Err(e) = &data_layout {
                     tracing::error!(%e, "failed fetching data layout for {cargo_toml:?} workspace");
                 }
@@ -673,6 +676,7 @@ impl ProjectWorkspace {
                 cfg_overrides,
                 None,
                 build_scripts,
+                // NOTE this is going to be put into db as `TargetLayoutLoadResult` type
                 match target_layout.as_ref() {
                     Ok(it) => Ok(Arc::from(it.as_str())),
                     Err(it) => Err(Arc::from(it.as_str())),
@@ -803,7 +807,7 @@ fn project_json_to_crate_graph(
                 file_id,
             )| {
                 let env = env.clone().into_iter().collect();
-
+                tracing::warn!(target = ?target, "[JSON data layout]");
                 let target_cfgs = match target.as_deref() {
                     Some(target) => cfg_cache
                         .entry(target)

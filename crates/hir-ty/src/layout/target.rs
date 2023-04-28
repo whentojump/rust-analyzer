@@ -13,6 +13,7 @@ pub fn target_data_layout_query(
 ) -> Option<Arc<TargetDataLayout>> {
     let crate_graph = db.crate_graph();
     let target_layout = crate_graph[krate].target_layout.as_ref().ok()?;
+     // NOTE convert string to structured representation (using a library)
     let res = TargetDataLayout::parse_from_llvm_datalayout_string(&target_layout);
     if let Err(_e) = &res {
         // FIXME: Print the error here once it implements debug/display

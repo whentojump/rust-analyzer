@@ -312,7 +312,7 @@ pub struct CrateData {
     pub origin: CrateOrigin,
     pub is_proc_macro: bool,
     // FIXME: These things should not be per crate! These are more per workspace crate graph level things
-    pub target_layout: TargetLayoutLoadResult,
+    pub target_layout: TargetLayoutLoadResult, // NOTE loaded in `workspace` crate, basically a string
     pub channel: Option<ReleaseChannel>,
 }
 
