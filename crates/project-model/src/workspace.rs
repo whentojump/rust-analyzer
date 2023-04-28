@@ -163,6 +163,12 @@ impl ProjectWorkspace {
         config: &CargoConfig,
         progress: &dyn Fn(String),
     ) -> Result<ProjectWorkspace> {
+
+        tracing::warn!("# load() begins");
+
+        //
+        // An anonymous function to get `Version` (SemVer compatible data structure)
+        //
         let version = |current_dir, cmd_path, prefix: &str| {
             let cargo_version = utf8_stdout({
                 let mut cmd = Command::new(cmd_path);
@@ -176,8 +182,15 @@ impl ProjectWorkspace {
                     .and_then(|it| Version::parse(it.split_whitespace().next()?).ok()),
             )
         };
+
         let res = match manifest {
             ProjectManifest::ProjectJson(project_json) => {
+
+                tracing::warn!("## match arm for JSON manifest begins");
+
+                //
+                // read the contents of the JSON manifest
+                //
                 let project_json = project_json.canonicalize()?;
                 let file = fs::read_to_string(&project_json).with_context(|| {
                     format!("Failed to read json file {}", project_json.display())
@@ -188,14 +201,27 @@ impl ProjectWorkspace {
                 let project_location = project_json.parent().to_path_buf();
                 let toolchain = version(&*project_location, toolchain::rustc(), "rustc ")?;
                 let project_json = ProjectJson::new(&project_location, data);
-                ProjectWorkspace::load_inline(
+
+                // TODO
+                let ret = ProjectWorkspace::load_inline(
                     project_json,
                     config.target.as_deref(),
                     &config.extra_env,
                     toolchain,
-                )
+                );
+
+                tracing::warn!("## match arm for JSON manifest ends");
+                ret
             }
             ProjectManifest::CargoToml(cargo_toml) => {
+
+                tracing::warn!("## match arm for Cargo.toml manifest begins");
+
+                //
+                // read `cargo metadata`
+                //
+                // (under a specific project directory)
+                // cargo metadata | jq
                 let toolchain = version(cargo_toml.parent(), toolchain::cargo(), "cargo ")?;
                 let meta = CargoWorkspace::fetch_metadata(
                     &cargo_toml,
@@ -306,6 +332,9 @@ impl ProjectWorkspace {
                 if let Err(e) = &data_layout {
                     tracing::error!(%e, "failed fetching data layout for {cargo_toml:?} workspace");
                 }
+
+                tracing::warn!("## match arm for Cargo.toml manifest ends");
+
                 ProjectWorkspace::Cargo {
                     cargo,
                     build_scripts: WorkspaceBuildScripts::default(),
@@ -319,6 +348,7 @@ impl ProjectWorkspace {
             }
         };
 
+        tracing::warn!("# load() ends");
         Ok(res)
     }
 
@@ -328,6 +358,9 @@ impl ProjectWorkspace {
         extra_env: &FxHashMap<String, String>,
         toolchain: Option<Version>,
     ) -> ProjectWorkspace {
+
+        tracing::warn!("# load_inline() begins");
+
         let sysroot = match (project_json.sysroot.clone(), project_json.sysroot_src.clone()) {
             (Some(sysroot), Some(sysroot_src)) => Ok(Sysroot::load(sysroot, sysroot_src)),
             (Some(sysroot), None) => {
@@ -356,6 +389,8 @@ impl ProjectWorkspace {
         }
 
         let rustc_cfg = rustc_cfg::get(None, target, extra_env);
+
+        tracing::warn!("# load_inline() ends");
         ProjectWorkspace::Json { project: project_json, sysroot, rustc_cfg, toolchain }
     }
 
