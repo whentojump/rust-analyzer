@@ -654,7 +654,8 @@ impl ProjectWorkspace {
                     project,
                     sysroot.as_ref().ok(),
                     extra_env,
-                    Err("rust-project.json projects have no target layout set".into()),
+                    Ok("e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128".into()),
+                    // Err("rust-project.json projects have no target layout set".into()),
                     toolchain.as_ref().and_then(|it| ReleaseChannel::from_str(it.pre.as_str())),
                 )
             }
