@@ -184,18 +184,33 @@ impl SourceAnalyzer {
         Some((mk_ty(ty), coerced.map(mk_ty)))
     }
 
+    // NOTE NOTE type hint (8)
     pub(crate) fn type_of_pat(
         &self,
         db: &dyn HirDatabase,
         pat: &ast::Pat,
     ) -> Option<(Type, Option<Type>)> {
+        // - *arenas* are kind of container? see https://github.com/thomcc/rust-typed-arena
+        // - `SourceAnalyzer` sets up an arena for each of Pat, Expr, Binding, ...
+        //       * ArenaMap<PatId, Ty>
+        //       * ArenaMap<ExprId, Ty>
+        //       * ArenaMap<BindingId, Ty>
+        // - `InferenceResult` is an even larger stuct containing all these arenas
+        // - ARC... I don't know, some kind of memory puzzle, see https://doc.rust-lang.org/std/sync/struct.Arc.html
         let pat_id = self.pat_id(pat)?;
+        tracing::warn!(pat_id = ?pat_id);
+
+        // NOTE this line already leads to `Unknown`
         let infer = self.infer.as_ref()?;
+        tracing::warn!(type_of_pat = ?infer.type_of_pat);
+
         let coerced = infer
             .pat_adjustments
             .get(&pat_id)
             .and_then(|adjusts| adjusts.last().map(|adjust| adjust.clone()));
         let ty = infer[pat_id].clone();
+        tracing::warn!(ty = ?ty);
+
         let mk_ty = |ty| Type::new_with_resolver(db, &self.resolver, ty);
         Some((mk_ty(ty), coerced.map(mk_ty)))
     }
