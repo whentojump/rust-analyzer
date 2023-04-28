@@ -256,6 +256,8 @@ impl<'ctx> MirLowerCtx<'ctx> {
         place: Place,
         mut current: BasicBlockId,
     ) -> Result<Option<BasicBlockId>> {
+        let tmp = &self.body.exprs[expr_id];
+        tracing::warn!(tmp = ?tmp, "lower_expr_to_place_without_adjust(): ");
         match &self.body.exprs[expr_id] {
             Expr::Missing => {
                 if let DefWithBodyId::FunctionId(f) = self.owner {
@@ -983,7 +985,10 @@ impl<'ctx> MirLowerCtx<'ctx> {
             },
             Expr::Literal(l) => {
                 let ty = self.expr_ty(expr_id);
+                tracing::warn!(ty = ?ty);
+                tracing::warn!(l = ?l);
                 let op = self.lower_literal_to_operand(ty, l)?;
+                                      //^^^^^^^^^^^^^^^^^^^^^^^^ NOTE NOTE problem (4)
                 self.push_assignment(current, place, op.into(), expr_id.into());
                 Ok(Some(current))
             }
@@ -1011,6 +1016,7 @@ impl<'ctx> MirLowerCtx<'ctx> {
 
     fn lower_literal_to_operand(&mut self, ty: Ty, l: &Literal) -> Result<Operand> {
         let size = layout_of_ty(self.db, &ty, self.owner.module(self.db.upcast()).krate())?
+                         //^^^^^^^^^^^^ NOTE NOTE problem (5)
             .size
             .bytes_usize();
         let bytes = match l {
@@ -1628,6 +1634,7 @@ pub fn lower_to_mir(
         ctx.lower_params_and_bindings([].into_iter(), binding_picker)?
     };
     if let Some(b) = ctx.lower_expr_to_place(root_expr, return_slot().into(), current)? {
+                                          //^^^^^^^^^^^^^^^^^^^ NOTE NOTE problem (3)
         ctx.set_terminator(b, Terminator::Return);
     }
     Ok(ctx.result)

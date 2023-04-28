@@ -973,6 +973,7 @@ impl<'a> InferenceContext<'a> {
                     if let Some(g_def) = self.owner.as_generic_def_id() {
                         let generics = generics(self.db.upcast(), g_def);
                         consteval::eval_to_const(
+                                 //^^^^^^^^^^^^^ NOTE NOTE problem (1)
                             repeat,
                             ParamLoweringMode::Placeholder,
                             self,
@@ -985,6 +986,8 @@ impl<'a> InferenceContext<'a> {
                 )
             }
         };
+
+        tracing::warn!(len = ?len, "infer_expr_array():");
 
         TyKind::Array(elem_ty, len).intern(Interner)
     }

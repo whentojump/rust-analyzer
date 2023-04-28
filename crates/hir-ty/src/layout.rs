@@ -78,6 +78,7 @@ impl<'a> LayoutCalculator for LayoutCx<'a> {
 
 pub fn layout_of_ty(db: &dyn HirDatabase, ty: &Ty, krate: CrateId) -> Result<Layout, LayoutError> {
     let Some(target) = db.target_data_layout(krate) else { return Err(LayoutError::TargetLayoutNotAvailable) };
+                                                 //^^^^^^^^^^^^^^^^^^ NOTE NOTE problem (6)
     let cx = LayoutCx { krate, target: &target };
     let dl = &*cx.current_data_layout();
     Ok(match ty.kind(Interner) {

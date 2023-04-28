@@ -236,9 +236,13 @@ pub(crate) fn eval_to_const(
     }
     let infer = ctx.clone().resolve_all();
     if let Ok(mir_body) = lower_to_mir(ctx.db, ctx.owner, &ctx.body, &infer, expr) {
+                                  //^^^^^^^^^^^^ NOTE NOTE problem (2)
+        tracing::warn!("lower_to_mir(): ok");
         if let Ok(result) = interpret_mir(db, &mir_body, Substitution::empty(Interner), true) {
             return result;
         }
+    } else {
+        tracing::warn!("lower_to_mir(): err");
     }
     unknown_const(infer[expr].clone())
 }
