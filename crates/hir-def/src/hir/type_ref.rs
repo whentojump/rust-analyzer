@@ -116,7 +116,7 @@ pub enum TypeRef {
     Reference(Box<TypeRef>, Option<LifetimeRef>, Mutability),
     // FIXME: for full const generics, the latter element (length) here is going to have to be an
     // expression that is further lowered later in hir_ty.
-    Array(Box<TypeRef>, ConstRefOrPath),
+    Array(Box<TypeRef>, ConstRefOrPath), // NOTE NOTE
     Slice(Box<TypeRef>),
     /// A fn pointer. Last element of the vector is the return type.
     Fn(Vec<(Option<Name>, TypeRef)>, bool /*varargs*/, bool /*is_unsafe*/),
@@ -451,7 +451,7 @@ pub enum ConstRef {
     // constants
     // https://github.com/rust-lang/rust-analyzer/pull/8813#issuecomment-840679177
     // https://rust-lang.zulipchat.com/#narrow/stream/144729-wg-traits/topic/Handling.20non.20evaluatable.20constants'.20equality/near/238386348
-    Unknown,
+    Unknown, // NOTE NOTE
 }
 
 impl ConstRef {

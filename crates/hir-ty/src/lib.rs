@@ -178,7 +178,7 @@ pub enum ConstScalar {
     // constants
     // https://github.com/rust-lang/rust-analyzer/pull/8813#issuecomment-840679177
     // https://rust-lang.zulipchat.com/#narrow/stream/144729-wg-traits/topic/Handling.20non.20evaluatable.20constants'.20equality/near/238386348
-    Unknown,
+    Unknown, // NOTE NOTE looks very close, given the `Bytes` thing
 }
 
 impl Hash for ConstScalar {
